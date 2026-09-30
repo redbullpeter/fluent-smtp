@@ -493,6 +493,10 @@ class NotificationHelper
     {
         $settings = (new Settings())->notificationSettings();
 
+        // `status` means configured; `active_channel` holds the Alerts list toggle.
+        // Switch on only when newly configured, so a re-save keeps an admin's "off".
+        $wasConfigured = Arr::get($settings, $channelName . '.status') === 'yes';
+
         $settings[$channelName] = $channelSettings;
 
         $isActive = Arr::get($channelSettings, 'status') === 'yes' ? true : false;
@@ -500,7 +504,7 @@ class NotificationHelper
         $activeChannels = $settings['active_channel'];
 
         if ($isActive) {
-            if (!in_array($channelName, $activeChannels)) {
+            if (!$wasConfigured && !in_array($channelName, $activeChannels)) {
                 $activeChannels[] = $channelName;
             }
         } else {
